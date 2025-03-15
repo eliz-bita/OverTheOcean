@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.filled.AttachFile
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -194,7 +195,7 @@ fun FeedScreen() {
                             .background(Color(0xFFE0F4FF), CircleShape)
                     ) {
                         Image(
-                            painter = painterResource(id = R.drawable.placeholder),
+                            painter = painterResource(id = R.drawable.ic_launcher_background),
                             contentDescription = "Balu mascote",
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Fit
