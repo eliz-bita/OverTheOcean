@@ -32,7 +32,7 @@ fun ExtratoDePontosScreen() {
         // Título com fonte Inter
         Text(
             text = "Extrato",
-            fontSize = 50.sp,
+            fontSize = 30.sp,
             color = Color(0xFF2d347b),
             fontWeight = FontWeight.Bold,
             modifier = Modifier.fillMaxWidth(),
@@ -61,8 +61,7 @@ fun TabelaExtratoPontos() {
         Triple("Entrada", "+50", Icons.Filled.Info),
         Triple("Saída", "-100", Icons.Filled.Info),
         Triple("Entrada", "+1000", Icons.Filled.Info),
-        Triple("Entrada", "+50", Icons.Filled.Info),
-        Triple("Entrada", "+100", Icons.Filled.Info)
+        Triple("Entrada", "+50", Icons.Filled.Info)
     )
 
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -78,7 +77,7 @@ fun TabelaExtratoPontos() {
                 text = "TIPO",
                 modifier = Modifier.weight(1f),
                 fontWeight = FontWeight.Bold,
-                fontSize = 30.sp,
+                fontSize = 20.sp,
                 color = Color(0xFF002140),
                 textAlign = TextAlign.Center
             )
@@ -86,7 +85,7 @@ fun TabelaExtratoPontos() {
                 text = "PONTOS",
                 modifier = Modifier.weight(1f),
                 fontWeight = FontWeight.Bold,
-                fontSize = 30.sp,
+                fontSize = 20.sp,
                 color = Color(0xFF002140),
                 textAlign = TextAlign.Center
             )
@@ -94,7 +93,7 @@ fun TabelaExtratoPontos() {
                 text = "INFO",
                 modifier = Modifier.weight(1f),
                 fontWeight = FontWeight.Bold,
-                fontSize = 30.sp,
+                fontSize = 20.sp,
                 color = Color(0xFF002140),
                 textAlign = TextAlign.Center
             )
