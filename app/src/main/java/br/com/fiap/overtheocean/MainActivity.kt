@@ -4,8 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -39,6 +39,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import br.com.fiap.overtheocean.ui.theme.OverTheOceanTheme
+import br.com.fiap.overtheocean.screens.ExtratoDePontosScreen
+import br.com.fiap.overtheocean.screens.PontosDeColetaScreen
+import androidx.compose.material.icons.filled.AttachFile
+
+
+
 
 
 class MainActivity : ComponentActivity() {
