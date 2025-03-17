@@ -11,6 +11,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Home
@@ -20,6 +21,7 @@ import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.filled.AttachFile
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -31,19 +33,27 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import br.com.fiap.overtheocean.ui.theme.OverTheOceanTheme
 import br.com.fiap.overtheocean.screens.ExtratoDePontosScreen
 import br.com.fiap.overtheocean.screens.PontosDeColetaScreen
-import androidx.compose.material.icons.filled.AttachFile
-
-
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 
 
 
@@ -53,12 +63,148 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             OverTheOceanTheme {
-                // Tela base de navegação
                 NavegacaoApp()
             }
         }
     }
 }
+
+@Composable
+fun LoginScreen(navController: NavController) {
+    var email by remember {
+        mutableStateOf("")
+    }
+    var password by remember {
+        mutableStateOf("")
+    }
+    var tamanhoMaximo = 8
+    var emailError by remember {
+        mutableStateOf(false)
+    }
+    var passwordError by remember {
+        mutableStateOf(false)
+    }
+    Column(modifier = Modifier.padding(16.dp)) {
+        Text(
+            text = "Login",
+            fontSize = 32.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFF2d347b)
+        )
+        Text(text = "Por favor entre com seus dados")
+
+        Spacer(modifier = Modifier.height(48.dp))
+        Box(
+            modifier = Modifier.fillMaxWidth(),
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.ic_launcher_background),
+                contentDescription = "Imagem de perfil",
+                modifier = Modifier
+                    .size(120.dp)
+                    .clip(CircleShape)
+                    .border(width = 2.dp, color = Color(0xFF2d347b), shape = CircleShape)
+                    .padding(4.dp),
+                contentScale = ContentScale.Crop
+            )
+        }
+
+        Spacer(modifier = Modifier.height(48.dp))
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(32.dp)
+            ) {
+                OutlinedTextField(
+                    value = email,
+                    onValueChange = {
+                        email = it
+                        if (email.length > 0) emailError = false
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = {
+                        Text(text = "Digite o seu e-mail")
+                    },
+                    isError = emailError,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Email
+                    ),
+                )
+                if(emailError){
+                    Text(
+                        text = "E-mail é obrigatório!",
+                        modifier = Modifier.fillMaxWidth(),
+                        color = Color.Red,
+                        textAlign = TextAlign.End
+                    )
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = {
+                        if(it.length <= tamanhoMaximo) password = it
+                        if (password.length > 0) passwordError = false
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = {
+                        Text(text = "Digite a sua senha")
+                    },
+                    isError = passwordError,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Password
+                    ),
+                    visualTransformation = PasswordVisualTransformation()
+                )
+                if(passwordError){
+                    Text(
+                        text = "Senha é obrigatória!",
+                        modifier = Modifier.fillMaxWidth(),
+                        color = Color.Red,
+                        textAlign = TextAlign.End
+                    )
+                }
+                Spacer(modifier = Modifier.height(32.dp))
+                Button(
+                    onClick = {
+                        var hasError = false
+
+                        if (email.isEmpty()) {
+                            emailError = true
+                            hasError = true
+                        }
+
+                        if (password.isEmpty()) {
+                            passwordError = true
+                            hasError = true
+                        }
+
+                        if (!hasError) {
+                            navController.navigate("Feed")
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF2d347b)
+                    )
+                ) {
+                    Text(
+                        text = "ENTRAR",
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .fillMaxWidth(),
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+        }
+    }
+}
+
+
 
 @Composable
 fun NavegacaoApp() {
@@ -67,14 +213,19 @@ fun NavegacaoApp() {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         bottomBar = {
-            BottomNavigationBar(navController)
+            val currentBackStackEntry by navController.currentBackStackEntryAsState()
+            val currentRoute = currentBackStackEntry?.destination?.route
+            if (currentRoute != "Login") {
+                BottomNavigationBar(navController)
+            }
         }
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = "Feed",
+            startDestination = "Login",
             modifier = Modifier.padding(innerPadding)
         ) {
+            composable("Login") { LoginScreen(navController) }
             composable("Feed") { FeedScreen() }
             composable("Pontos") { PontosScreen() }
             composable("Extrato de Pontos") { ExtratoDePontosScreen() }
@@ -107,19 +258,37 @@ fun BottomNavigationBar(navController: NavController) {
             selected = false,
             onClick = { navController.navigate("Extrato de Pontos") },
             label = { Text("Extrato", color = Color.White) },
-            icon = { Icon(Icons.Default.List, contentDescription = "Extrato de Pontos", tint = Color.White) }
+            icon = {
+                Icon(
+                    Icons.Default.List,
+                    contentDescription = "Extrato de Pontos",
+                    tint = Color.White
+                )
+            }
         )
         NavigationBarItem(
             selected = false,
             onClick = { navController.navigate("Pontos de Coleta") },
             label = { Text("Coleta", color = Color.White) },
-            icon = { Icon(Icons.Default.LocationOn, contentDescription = "Pontos de Coleta", tint = Color.White) }
+            icon = {
+                Icon(
+                    Icons.Default.LocationOn,
+                    contentDescription = "Pontos de Coleta",
+                    tint = Color.White
+                )
+            }
         )
         NavigationBarItem(
             selected = false,
             onClick = { navController.navigate("Reportar") },
             label = { Text("Reportar", color = Color.White) },
-            icon = { Icon(Icons.Default.Warning, contentDescription = "Reportar", tint = Color.White) }
+            icon = {
+                Icon(
+                    Icons.Default.Warning,
+                    contentDescription = "Reportar",
+                    tint = Color.White
+                )
+            }
         )
     }
 }
@@ -200,7 +369,7 @@ fun FeedScreen() {
                             .background(Color(0xFFE0F4FF), CircleShape)
                     ) {
                         Image(
-                            painter = painterResource(id = R.drawable.placeholder),
+                            painter = painterResource(id = R.drawable.ic_launcher_background),
                             contentDescription = "Balu mascote",
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Fit
@@ -496,7 +665,12 @@ fun ExtratoDePontosScreen() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(text = "Extrato de Pontos", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color(0xFF436cff))
+        Text(
+            text = "Extrato de Pontos",
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFF436cff)
+        )
     }
 }
 
@@ -507,7 +681,12 @@ fun PontosDeColetaScreen() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(text = "Pontos de Coleta", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color(0xFF436cff))
+        Text(
+            text = "Pontos de Coleta",
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFF436cff)
+        )
     }
 }
 
