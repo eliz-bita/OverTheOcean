@@ -46,6 +46,10 @@ import androidx.navigation.compose.rememberNavController
 import br.com.fiap.overtheocean.screens.ExtratoDePontosScreen
 import br.com.fiap.overtheocean.screens.PontosDeColetaScreen
 import br.com.fiap.overtheocean.ui.theme.OverTheOceanTheme
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
+import android.widget.Toast
 
 
 class MainActivity : ComponentActivity() {
@@ -648,26 +652,49 @@ fun ProgressPoint(text: String) {
 fun RewardCard(
     modifier: Modifier = Modifier,
     title: String,
-    backgroundColor: Color
+    backgroundColor: Color,
+    imageRes: Int,
+    url: String = "",  // Parâmetro de URL com valor padrão vazio
+    onClick: (String) -> Unit = {}  // Função de callback com implementação padrão vazia
 ) {
     Card(
         modifier = modifier
-            .height(120.dp),
+            .height(120.dp)
+            .let {
+                if (url.isNotEmpty()) {
+                    it.clickable { onClick(url) }
+                } else {
+                    it
+                }
+            },
         shape = RoundedCornerShape(8.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         colors = CardDefaults.cardColors(containerColor = backgroundColor)
     ) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.BottomStart
-        ) {
-            Text(
-                text = title,
-                modifier = Modifier.padding(8.dp),
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Medium,
-                color = Color.DarkGray
+        Column {
+            // Imagem ocupando parte superior do card
+            Image(
+                painter = painterResource(id = imageRes),
+                contentDescription = title,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(80.dp)
             )
+
+            // Texto na parte inferior do card
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.BottomStart
+            ) {
+                Text(
+                    text = title,
+                    modifier = Modifier.padding(8.dp),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color.DarkGray
+                )
+            }
         }
     }
 }
@@ -706,6 +733,10 @@ fun PontosDeColetaScreen() {
 
 @Composable
 fun ReportarScreen() {
+    // Importar o manipulador de URI para abrir links
+    val uriHandler = LocalUriHandler.current
+    val context = LocalContext.current
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -743,22 +774,39 @@ fun ReportarScreen() {
                     .padding(8.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // Card de desconto em restaurantes
+                // Card de desconto em restaurantes (agora clicável)
                 RewardCard(
                     modifier = Modifier.weight(1f),
                     title = "Desconto em restaurantes",
                     backgroundColor = Color(0xFFF5F5F5),
-                    imageRes = R.drawable.restaurante
+                    imageRes = R.drawable.restaurante,
+                    url = "https://www.cuponeria.com.br/cupom/restaurantes",
+                    onClick = { url ->
+                        try {
+                            uriHandler.openUri(url)
+                        } catch (e: Exception) {
+                            Toast.makeText(context, "Não foi possível abrir o link", Toast.LENGTH_SHORT).show()
+                        }
+                    }
                 )
 
-                // Card de desconto em hotéis
+                // Card de desconto em hotéis (agora clicável)
                 RewardCard(
                     modifier = Modifier.weight(1f),
                     title = "Desconto em hotéis",
                     backgroundColor = Color(0xFFF5F5F5),
-                    imageRes = R.drawable.cafeteria
+                    imageRes = R.drawable.cafeteria,
+                    url = "https://www.hoteis.com/lp/b/deals?locale=pt_BR&siteid=301800003&semcid=HCOM-BR.B.GOOGLE.BT-c-PT.GT&semdtl=a118251106433.b1142694981278.g1kwd-59581397076.e1c.m1Cj0KCQjwkN--BhDkARIsAD_mnIoJgZNTCUIoUPa4kprianVJxhL0HdgpAM_p1LsqpMjREFSDJ2iBqxcaAk28EALw_wcB.r13cc0bbdc9ea5ec7c24d786ca543002e3167642763b97db7ab4210c0a004ca14c.c1HET27WygITECCgETLD4hGg.j19196805.k1.d1624872249251.h1e.i1.l1.n1.o1.p1.q1.s1.t1.x1.f1.u1.v1.w1&gad_source=1&gclid=Cj0KCQjwkN--BhDkARIsAD_mnIoJgZNTCUIoUPa4kprianVJxhL0HdgpAM_p1LsqpMjREFSDJ2iBqxcaAk28EALw_wcB",
+                    onClick = { url ->
+                        try {
+                            uriHandler.openUri(url)
+                        } catch (e: Exception) {
+                            Toast.makeText(context, "Não foi possível abrir o link", Toast.LENGTH_SHORT).show()
+                        }
+                    }
                 )
             }
+        }
 
         Spacer(modifier = Modifier.height(24.dp))
 
