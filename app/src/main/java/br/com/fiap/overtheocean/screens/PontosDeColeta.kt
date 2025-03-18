@@ -42,7 +42,6 @@ fun PontosDeColetaScreen() {
     var permissionGranted by rememberSaveable { mutableStateOf(false) }
     val scrollState = rememberScrollState()
 
-    // Verifique se a permissão já foi concedida
     LaunchedEffect(Unit) {
         permissionGranted = ContextCompat.checkSelfPermission(
             context,
@@ -50,14 +49,12 @@ fun PontosDeColetaScreen() {
         ) == PackageManager.PERMISSION_GRANTED
     }
 
-    // Launcher para solicitar permissão
     val requestPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         permissionGranted = isGranted
     }
 
-    // Solicitar permissão ao iniciar, se ainda não foi concedida
     LaunchedEffect(Unit) {
         if (!permissionGranted) {
             requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
@@ -65,43 +62,33 @@ fun PontosDeColetaScreen() {
     }
 
     Scaffold { innerPadding ->
-        // Aplicando scroll apenas à Column principal, não afetando a barra de navegação
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .verticalScroll(scrollState),
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            // Espaçador para empurrar o conteúdo para baixo
-            Spacer(modifier = Modifier.height(70.dp))
-
-            // Título
+            Spacer(modifier = Modifier.height(0.dp))
             Text(
                 text = "Pontos de Coleta",
-                color = Color(0xFF002140),
-                fontSize = 30.sp,
+                color = Color(0xFF2E4374),
+                fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
-                    .padding(bottom = 16.dp)
+                    .padding(bottom = 15.dp)
             )
-
-            // Novo Card com Mapa - com padding horizontal para evitar que encoste nas bordas
             Card(
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
                     .fillMaxWidth()
-                    .height(250.dp) // Aumentei a altura para melhor visualização
+                    .height(250.dp)
             ) {
-                val initialPosition = LatLng(-23.55052, -46.633308) // São Paulo como exemplo
+                val initialPosition = LatLng(-23.55052, -46.633308)
                 val cameraPositionState = rememberCameraPositionState {
                     position = CameraPosition.fromLatLngZoom(initialPosition, 12f)
                 }
-
                 Box(modifier = Modifier.fillMaxSize()) {
-                    // Verifica se temos permissão antes de mostrar o mapa
                     if (permissionGranted) {
                         GoogleMap(
                             modifier = Modifier.fillMaxSize(),
@@ -115,7 +102,6 @@ fun PontosDeColetaScreen() {
                             )
                         }
                     } else {
-                        // Exibir mensagem quando não há permissão
                         Box(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
@@ -129,8 +115,6 @@ fun PontosDeColetaScreen() {
                     }
                 }
             }
-
-            // Texto informativo
             Text(
                 text = "Você também pode entregar os resíduos plásticos em estabelecimentos perto de você, como restaurantes, mercearias etc.",
                 textAlign = TextAlign.Center,
@@ -139,14 +123,11 @@ fun PontosDeColetaScreen() {
                     .padding(horizontal = 16.dp)
                     .padding(vertical = 16.dp)
             )
-
-            // Estabelecimentos (duas caixas lado a lado) com altura fixa para evitar compressão
             Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                // Primeira linha de cards
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(200.dp) // Altura fixa para os cards
+                        .height(200.dp)
                         .padding(bottom = 16.dp)
                 ) {
                     EstablishmentCard(
@@ -158,7 +139,6 @@ fun PontosDeColetaScreen() {
                             .weight(1f)
                             .padding(end = 8.dp)
                     )
-
                     EstablishmentCard(
                         imageRes = R.drawable.restaurante,
                         name = "Restaurante Verde",
@@ -169,19 +149,7 @@ fun PontosDeColetaScreen() {
                             .padding(start = 8.dp)
                     )
                 }
-
-                // Opcionalmente, você pode adicionar mais cards em outra linha
-                // Row(
-                //     modifier = Modifier
-                //         .fillMaxWidth()
-                //         .height(200.dp)
-                // ) {
-                //     EstablishmentCard(...)
-                //     EstablishmentCard(...)
-                // }
             }
-
-            // Espaço no final para garantir que tudo seja visível após o scroll
             Spacer(modifier = Modifier.height(80.dp))
         }
     }
@@ -207,12 +175,11 @@ fun EstablishmentCard(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            // Imagem - com tamanho proporcional
             Card(
                 shape = RoundedCornerShape(8.dp),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f) // Usa peso em vez de altura fixa
+                    .weight(1f)
                     .padding(bottom = 8.dp)
             ) {
                 Image(
@@ -222,16 +189,12 @@ fun EstablishmentCard(
                     modifier = Modifier.fillMaxSize()
                 )
             }
-
-            // Dados do estabelecimento
             Text(
                 text = name,
                 fontWeight = FontWeight.Bold,
                 fontSize = 14.sp,
                 maxLines = 1
             )
-
-            // Endereço com ícone de localização
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
@@ -249,8 +212,6 @@ fun EstablishmentCard(
                     maxLines = 1
                 )
             }
-
-            // Status (Aberto/Fechado)
             Text(
                 text = if (isOpen) "Aberto" else "Fechado",
                 color = if (isOpen) Color(0xFF388E3C) else Color(0xFFD32F2F),

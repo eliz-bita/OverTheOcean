@@ -22,27 +22,23 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 
 @Composable
 fun ExtratoDePontosScreen() {
-    // Coluna principal com padding ajustado para aproximar título e tabela
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(top = 80.dp, start = 16.dp, end = 16.dp),
+            .padding(top = 15.dp,start = 16.dp, end = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Título com fonte Inter
         Text(
             text = "Extrato",
-            fontSize = 30.sp,
-            color = Color(0xFF2d347b),
+            fontSize = 24.sp,
+            color = Color(0xFF2E4374),
             fontWeight = FontWeight.Bold,
             modifier = Modifier.fillMaxWidth(),
             textAlign = TextAlign.Center
         )
 
-        // Espaço reduzido entre o título e a tabela
         Spacer(modifier = Modifier.height(30.dp))
 
-        // Tabela posicionada mais acima na tela
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -56,7 +52,6 @@ fun ExtratoDePontosScreen() {
 
 @Composable
 fun TabelaExtratoPontos() {
-    // Dados atualizados com os sinais + e - e linhas adicionais
     val dados = listOf(
         Triple("Entrada", "+50", Icons.Filled.Info),
         Triple("Saída", "-100", Icons.Filled.Info),
@@ -65,7 +60,6 @@ fun TabelaExtratoPontos() {
     )
 
     Column(modifier = Modifier.fillMaxWidth()) {
-        // Cabeçalho da tabela com sombra mais pronunciada
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -99,7 +93,6 @@ fun TabelaExtratoPontos() {
             )
         }
 
-        // Conteúdo da tabela com linhas maiores
         LazyColumn {
             items(dados) { (tipo, pontos, info) ->
                 Row(
@@ -110,13 +103,13 @@ fun TabelaExtratoPontos() {
                     Text(
                         text = tipo,
                         modifier = Modifier.weight(1f),
-                        fontSize = 25.sp,
+                        fontSize = 15.sp,
                         textAlign = TextAlign.Center
                     )
                     Text(
                         text = pontos,
                         modifier = Modifier.weight(1f),
-                        fontSize = 25.sp,
+                        fontSize = 15.sp,
                         textAlign = TextAlign.Center
                     )
                     Box(
@@ -127,11 +120,10 @@ fun TabelaExtratoPontos() {
                             imageVector = info,
                             contentDescription = "Ícone de informação",
                             tint = Color(0xFFC8D5F5),
-                            modifier = Modifier.size(40.dp)
+                            modifier = Modifier.size(15.dp)
                         )
                     }
                 }
-                // Linha divisória mais visível entre as linhas
                 Divider(
                     modifier = Modifier.padding(horizontal = 8.dp),
                     thickness = 1.dp,
