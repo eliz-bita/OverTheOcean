@@ -310,7 +310,7 @@ fun FeedScreen() {
             modifier = Modifier.padding(16.dp)
         )
 
-        // Seção P.O.V. com círculos
+        // Seção P.O.V. com imagens em círculos
         Text(
             text = "P.O.V.",
             fontSize = 14.sp,
@@ -339,10 +339,51 @@ fun FeedScreen() {
                 )
             }
 
-            // Círculos com imagens de oceano
-            CircleImage(color = Color(0xFF1E6799))
-            CircleImage(color = Color(0xFFACC8D7))
-            CircleImage(color = Color(0xFFB8E1F0))
+            // Círculos com imagens em vez de cores sólidas
+            // Primeiro círculo com imagem
+            Box(
+                modifier = Modifier
+                    .size(60.dp)
+                    .clip(CircleShape)
+                    .border(1.dp, Color(0xFFD0D0D0), CircleShape)
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.corais),
+                    contentDescription = "Oceano e Corais",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+
+            // Segundo círculo com imagem
+            Box(
+                modifier = Modifier
+                    .size(60.dp)
+                    .clip(CircleShape)
+                    .border(1.dp, Color(0xFFD0D0D0), CircleShape)
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.mar),
+                    contentDescription = "ondas",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+
+            // Terceiro círculo com imagem
+            Box(
+                modifier = Modifier
+                    .size(60.dp)
+                    .clip(CircleShape)
+                    .border(1.dp, Color(0xFFD0D0D0), CircleShape)
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.ocean),
+                    contentDescription = "Oceano turquesa",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -447,9 +488,9 @@ fun FeedScreen() {
                 modifier = Modifier.fillMaxSize()
             )
 
-             }
         }
     }
+}
 
 // Componente auxiliar para os círculos de imagem
 @Composable
@@ -464,6 +505,10 @@ fun CircleImage(color: Color) {
 
 @Composable
 fun PontosScreen() {
+    // Importar o manipulador de URI para abrir links
+    val uriHandler = LocalUriHandler.current
+    val context = LocalContext.current
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -582,48 +627,44 @@ fun PontosScreen() {
                 .padding(horizontal = 8.dp, vertical = 12.dp)
         )
 
-        @Composable
-        fun RewardCard(
-            modifier: Modifier = Modifier,
-            title: String,
-            backgroundColor: Color,
-            imageRes: Int? = null // Adicionando o parâmetro opcional
+        // Cards de recompensas
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Card(
-                modifier = modifier
-                    .height(120.dp),
-                shape = RoundedCornerShape(8.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                colors = CardDefaults.cardColors(containerColor = backgroundColor)
-            ) {
-                Column {
-                    // Imagem ocupando parte superior do card (apenas se imageRes for fornecido)
-                    if (imageRes != null) {
-                        Image(
-                            painter = painterResource(id = imageRes),
-                            contentDescription = title,
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(80.dp)
-                        )
-                    }
-
-                    // Texto na parte inferior do card
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.BottomStart
-                    ) {
-                        Text(
-                            text = title,
-                            modifier = Modifier.padding(8.dp),
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = Color.DarkGray
-                        )
+            // Card de desconto em restaurantes (agora clicável)
+            RewardCard(
+                modifier = Modifier.weight(1f),
+                title = "Desconto em restaurantes",
+                backgroundColor = Color(0xFFF5F5F5),
+                imageRes = R.drawable.restaurante,
+                url = "https://www.cuponeria.com.br/cupom/restaurantes",
+                onClick = { url ->
+                    try {
+                        uriHandler.openUri(url)
+                    } catch (e: Exception) {
+                        Toast.makeText(context, "Não foi possível abrir o link", Toast.LENGTH_SHORT).show()
                     }
                 }
-            }
+            )
+
+            // Card de desconto em hotéis (agora clicável)
+            RewardCard(
+                modifier = Modifier.weight(1f),
+                title = "Desconto em hotéis",
+                backgroundColor = Color(0xFFF5F5F5),
+                imageRes = R.drawable.cafeteria,
+                url = "https://www.hoteis.com/lp/b/deals?locale=pt_BR&siteid=301800003&semcid=HCOM-BR.B.GOOGLE.BT-c-PT.GT&semdtl=a118251106433.b1142694981278.g1kwd-59581397076.e1c.m1Cj0KCQjwkN--BhDkARIsAD_mnIoJgZNTCUIoUPa4kprianVJxhL0HdgpAM_p1LsqpMjREFSDJ2iBqxcaAk28EALw_wcB.r13cc0bbdc9ea5ec7c24d786ca543002e3167642763b97db7ab4210c0a004ca14c.c1HET27WygITECCgETLD4hGg.j19196805.k1.d1624872249251.h1e.i1.l1.n1.o1.p1.q1.s1.t1.f1.u1.v1.w1&gad_source=1&gclid=Cj0KCQjwkN--BhDkARIsAD_mnIoJgZNTCUIoUPa4kprianVJxhL0HdgpAM_p1LsqpMjREFSDJ2iBqxcaAk28EALw_wcB",
+                onClick = { url ->
+                    try {
+                        uriHandler.openUri(url)
+                    } catch (e: Exception) {
+                        Toast.makeText(context, "Não foi possível abrir o link", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            )
         }
     }
 }
@@ -733,10 +774,6 @@ fun PontosDeColetaScreen() {
 
 @Composable
 fun ReportarScreen() {
-    // Importar o manipulador de URI para abrir links
-    val uriHandler = LocalUriHandler.current
-    val context = LocalContext.current
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -767,44 +804,10 @@ fun ReportarScreen() {
                 .height(56.dp),
             colors = CardDefaults.outlinedCardColors(containerColor = Color(0xFFEEF1FA))
         ) {
-            // Cards de recompensas
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            Box(
+                modifier = Modifier.fillMaxSize()
             ) {
-                // Card de desconto em restaurantes (agora clicável)
-                RewardCard(
-                    modifier = Modifier.weight(1f),
-                    title = "Desconto em restaurantes",
-                    backgroundColor = Color(0xFFF5F5F5),
-                    imageRes = R.drawable.restaurante,
-                    url = "https://www.cuponeria.com.br/cupom/restaurantes",
-                    onClick = { url ->
-                        try {
-                            uriHandler.openUri(url)
-                        } catch (e: Exception) {
-                            Toast.makeText(context, "Não foi possível abrir o link", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                )
-
-                // Card de desconto em hotéis (agora clicável)
-                RewardCard(
-                    modifier = Modifier.weight(1f),
-                    title = "Desconto em hotéis",
-                    backgroundColor = Color(0xFFF5F5F5),
-                    imageRes = R.drawable.cafeteria,
-                    url = "https://www.hoteis.com/lp/b/deals?locale=pt_BR&siteid=301800003&semcid=HCOM-BR.B.GOOGLE.BT-c-PT.GT&semdtl=a118251106433.b1142694981278.g1kwd-59581397076.e1c.m1Cj0KCQjwkN--BhDkARIsAD_mnIoJgZNTCUIoUPa4kprianVJxhL0HdgpAM_p1LsqpMjREFSDJ2iBqxcaAk28EALw_wcB.r13cc0bbdc9ea5ec7c24d786ca543002e3167642763b97db7ab4210c0a004ca14c.c1HET27WygITECCgETLD4hGg.j19196805.k1.d1624872249251.h1e.i1.l1.n1.o1.p1.q1.s1.t1.x1.f1.u1.v1.w1&gad_source=1&gclid=Cj0KCQjwkN--BhDkARIsAD_mnIoJgZNTCUIoUPa4kprianVJxhL0HdgpAM_p1LsqpMjREFSDJ2iBqxcaAk28EALw_wcB",
-                    onClick = { url ->
-                        try {
-                            uriHandler.openUri(url)
-                        } catch (e: Exception) {
-                            Toast.makeText(context, "Não foi possível abrir o link", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                )
+                // Campo vazio, normalmente teria um dropdown aqui
             }
         }
 
