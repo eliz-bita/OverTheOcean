@@ -16,7 +16,7 @@ enum class TipoRelatorio(val descricao: String) {
 data class Relatorio(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
-    val tipo: TipoRelatorio,
+    val tipo: TipoRelatorio?,
     val descricao: String,
     val caminhoImagem: String,  // Caminho para a imagem armazenada
     val dataHora: Date = Date()  // Data e hora do relatório

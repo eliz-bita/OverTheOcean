@@ -1,6 +1,10 @@
 package br.com.fiap.overtheocean
 
+import android.graphics.ImageDecoder
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -16,7 +20,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AttachFile
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Star
@@ -50,6 +53,17 @@ import androidx.compose.foundation.clickable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.input.ImeAction
+import br.com.fiap.overtheocean.model.Relatorio
+import br.com.fiap.overtheocean.model.TipoRelatorio
 
 
 class MainActivity : ComponentActivity() {
@@ -225,7 +239,7 @@ fun NavegacaoApp() {
             composable("Pontos") { PontosScreen() }
             composable("Extrato de Pontos") { ExtratoDePontosScreen() }
             composable("Pontos de Coleta") { PontosDeColetaScreen() }
-            composable("Reportar") { ReportarScreen() }
+            composable("Reportar") { ReportarScreen<Any>() }
         }
     }
 }
@@ -773,6 +787,202 @@ fun PontosDeColetaScreen() {
 }
 
 @Composable
+fun <T> ReportarScreen(
+    onSalvarClick: (Relatorio) -> Unit = {}
+) {
+    var tipoSelecionado by remember { mutableStateOf<br.com.fiap.overtheocean.model.TipoRelatorio?>(null) }
+    var descricao by remember { mutableStateOf("") }
+    var caminhoImagem by remember { mutableStateOf<Uri?>(null) }
+    var imagemSelecionada by remember { mutableStateOf<ImageBitmap?>(null) }
+    val context = LocalContext.current
+    val focusManager = LocalFocusManager.current
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            caminhoImagem = it
+            val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                ImageDecoder.decodeBitmap(ImageDecoder.createSource(context.contentResolver, it))
+                    .asImageBitmap()
+            } else {
+                @Suppress("DEPRECATION")
+                MediaStore.Images.Media.getBitmap(context.contentResolver, it).asImageBitmap()
+            }
+            imagemSelecionada = bitmap
+        }
+    }
+
+    val botaoAtivo = tipoSelecionado != null && descricao.isNotEmpty() && caminhoImagem != null
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+            .padding(horizontal = 16.dp, vertical = 24.dp)
+            .verticalScroll(rememberScrollState())
+    ) {
+        Text(
+            text = "Reportar",
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFF2E4374),
+            modifier = Modifier.padding(bottom = 24.dp)
+        )
+
+        Text(
+            text = "O que você viu?",
+            fontSize = 16.sp,
+            color = Color.DarkGray,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+
+        br.com.fiap.overtheocean.model.TipoRelatorio.values().forEach { tipo ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp)
+                    .clickable { tipoSelecionado = tipo },
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                RadioButton(
+                    selected = tipoSelecionado == tipo,
+                    onClick = { tipoSelecionado = tipo },
+                    colors = RadioButtonDefaults.colors(
+                        selectedColor = Color(0xFF2E4374)
+                    )
+                )
+                Text(
+                    text = tipo.descricao,
+                    fontSize = 16.sp,
+                    color = Color.DarkGray,
+                    modifier = Modifier.padding(start = 8.dp)
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Text(
+            text = "Descreva aqui o que viu (máximo 200 caracteres)",
+            fontSize = 16.sp,
+            color = Color.DarkGray,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+
+        OutlinedTextField(
+            value = descricao,
+            onValueChange = {
+                if (it.length <= 200) descricao = it
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(120.dp),
+            placeholder = { Text("Digite sua descrição aqui") },
+            colors = OutlinedTextFieldDefaults.colors(
+                unfocusedContainerColor = Color(0xFFEEF1FA),
+                focusedContainerColor = Color(0xFFEEF1FA),
+                unfocusedBorderColor = Color.Transparent,
+                focusedBorderColor = Color(0xFF2E4374)
+            ),
+            keyboardOptions = KeyboardOptions(
+                imeAction = ImeAction.Done
+            ),
+            keyboardActions = KeyboardActions(
+                onDone = { focusManager.clearFocus() }
+            ),
+            maxLines = 5
+        )
+
+        Text(
+            text = "${descricao.length}/200",
+            fontSize = 12.sp,
+            color = if (descricao.length >= 180) Color.Red else Color.Gray,
+            modifier = Modifier.align(Alignment.End)
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Text(
+            text = "Você tem uma foto do ocorrido?",
+            fontSize = 16.sp,
+            color = Color.DarkGray,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+
+        OutlinedCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp)
+                .clickable { launcher.launch("image/*") },
+            colors = CardDefaults.outlinedCardColors(containerColor = Color(0xFFEEF1FA))
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = if (caminhoImagem == null) "Escolha uma imagem" else "Imagem selecionada",
+                    fontSize = 16.sp,
+                    color = Color.Gray
+                )
+                Icon(
+                    imageVector = Icons.Default.AttachFile,
+                    contentDescription = "Anexar arquivo",
+                    tint = Color.Gray
+                )
+            }
+        }
+
+        if (imagemSelecionada != null) {
+            Spacer(modifier = Modifier.height(16.dp))
+            Image(
+                bitmap = imagemSelecionada!!,
+                contentDescription = "Preview da imagem",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+                    .clip(RoundedCornerShape(8.dp)),
+                contentScale = ContentScale.Crop
+            )
+        }
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        Button(
+            onClick = {
+                if (botaoAtivo) {
+                    val relatorio = Relatorio(
+                        tipo = tipoSelecionado!!,
+                        descricao = descricao,
+                        caminhoImagem = caminhoImagem.toString()
+                    )
+                    onSalvarClick(relatorio)
+                }
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = if (botaoAtivo) Color(0xFF2E4374) else Color(0xFFE0E0E0),
+                disabledContainerColor = Color(0xFFE0E0E0)
+            ),
+            enabled = botaoAtivo,
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            Text(
+                text = "Continuar",
+                fontSize = 16.sp,
+                color = if (botaoAtivo) Color.White else Color.Gray
+            )
+        }
+
+        Spacer(modifier = Modifier.height(56.dp))
+    }
+}
+/*@Composable
 fun ReportarScreen() {
     Column(
         modifier = Modifier
@@ -907,4 +1117,4 @@ fun ReportarScreen() {
         // Espaço para a barra de navegação inferior
         Spacer(modifier = Modifier.height(56.dp))
     }
-}
+}*/
