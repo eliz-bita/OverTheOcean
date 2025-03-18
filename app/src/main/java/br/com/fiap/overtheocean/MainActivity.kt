@@ -65,7 +65,7 @@ import androidx.compose.ui.text.input.ImeAction
 import br.com.fiap.overtheocean.model.Relatorio
 import br.com.fiap.overtheocean.model.TipoRelatorio
 import androidx.compose.foundation.clickable
-
+import androidx.compose.material.icons.filled.CheckCircle
 
 
 class MainActivity : ComponentActivity() {
@@ -447,6 +447,7 @@ fun FeedScreen(navController: NavController) {
             }
         }
 
+
         Spacer(modifier = Modifier.height(16.dp))
 
         Row(
@@ -770,6 +771,8 @@ fun <T> ReportarScreen(
     var descricao by remember { mutableStateOf("") }
     var caminhoImagem by remember { mutableStateOf<Uri?>(null) }
     var imagemSelecionada by remember { mutableStateOf<ImageBitmap?>(null) }
+    var mostrarConfirmacao by remember { mutableStateOf(false) }
+
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val launcher = rememberLauncherForActivityResult(
@@ -790,171 +793,252 @@ fun <T> ReportarScreen(
 
     val botaoAtivo = tipoSelecionado != null && descricao.isNotEmpty() && caminhoImagem != null
 
-    Column(
+    // Verifica se deve mostrar a tela de confirmação
+    if (mostrarConfirmacao) {
+        TelaConfirmacao(
+            onVoltar = {
+                // Retorna para a tela principal
+                mostrarConfirmacao = false
+                // Limpa os campos do formulário
+                tipoSelecionado = null
+                descricao = ""
+                caminhoImagem = null
+                imagemSelecionada = null
+            }
+        )
+    } else {
+        // Tela principal de relatório
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White)
+                .padding(horizontal = 16.dp, vertical = 24.dp)
+                .verticalScroll(rememberScrollState())
+        ) {
+            Text(
+                text = "Reportar",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF2E4374),
+                modifier = Modifier.padding(bottom = 24.dp)
+            )
+
+            Text(
+                text = "O que você viu?",
+                fontSize = 16.sp,
+                color = Color.DarkGray,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
+            br.com.fiap.overtheocean.model.TipoRelatorio.values().forEach { tipo ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp)
+                        .clickable { tipoSelecionado = tipo },
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RadioButton(
+                        selected = tipoSelecionado == tipo,
+                        onClick = { tipoSelecionado = tipo },
+                        colors = RadioButtonDefaults.colors(
+                            selectedColor = Color(0xFF2E4374)
+                        )
+                    )
+                    Text(
+                        text = tipo.descricao,
+                        fontSize = 16.sp,
+                        color = Color.DarkGray,
+                        modifier = Modifier.padding(start = 8.dp)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                text = "Descreva aqui o que viu (máximo 200 caracteres)",
+                fontSize = 16.sp,
+                color = Color.DarkGray,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
+            OutlinedTextField(
+                value = descricao,
+                onValueChange = {
+                    if (it.length <= 200) descricao = it
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp),
+                placeholder = { Text("Digite sua descrição aqui") },
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedContainerColor = Color(0xFFEEF1FA),
+                    focusedContainerColor = Color(0xFFEEF1FA),
+                    unfocusedBorderColor = Color.Transparent,
+                    focusedBorderColor = Color(0xFF2E4374)
+                ),
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Done
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = { focusManager.clearFocus() }
+                ),
+                maxLines = 5
+            )
+
+            Text(
+                text = "${descricao.length}/200",
+                fontSize = 12.sp,
+                color = if (descricao.length >= 180) Color.Red else Color.Gray,
+                modifier = Modifier.align(Alignment.End)
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                text = "Você tem uma foto do ocorrido?",
+                fontSize = 16.sp,
+                color = Color.DarkGray,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
+            OutlinedCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+                    .clickable { launcher.launch("image/*") },
+                colors = CardDefaults.outlinedCardColors(containerColor = Color(0xFFEEF1FA))
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = if (caminhoImagem == null) "Escolha uma imagem" else "Imagem selecionada",
+                        fontSize = 16.sp,
+                        color = Color.Gray
+                    )
+                    Icon(
+                        imageVector = Icons.Default.AttachFile,
+                        contentDescription = "Anexar arquivo",
+                        tint = Color.Gray
+                    )
+                }
+            }
+
+            if (imagemSelecionada != null) {
+                Spacer(modifier = Modifier.height(16.dp))
+                Image(
+                    bitmap = imagemSelecionada!!,
+                    contentDescription = "Preview da imagem",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp)
+                        .clip(RoundedCornerShape(8.dp)),
+                    contentScale = ContentScale.Crop
+                )
+            }
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            Button(
+                onClick = {
+                    if (botaoAtivo) {
+                        val relatorio = Relatorio(
+                            tipo = tipoSelecionado!!,
+                            descricao = descricao,
+                            caminhoImagem = caminhoImagem.toString()
+                        )
+                        onSalvarClick(relatorio)
+                        mostrarConfirmacao = true
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (botaoAtivo) Color(0xFF2E4374) else Color(0xFFE0E0E0),
+                    disabledContainerColor = Color(0xFFE0E0E0)
+                ),
+                enabled = botaoAtivo,
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Text(
+                    text = "Continuar",
+                    fontSize = 16.sp,
+                    color = if (botaoAtivo) Color.White else Color.Gray
+                )
+            }
+
+            Spacer(modifier = Modifier.height(56.dp))
+        }
+    }
+}
+
+@Composable
+fun TelaConfirmacao(onVoltar: () -> Unit) {
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
-            .padding(horizontal = 16.dp, vertical = 24.dp)
-            .verticalScroll(rememberScrollState())
+            .padding(16.dp),
+        contentAlignment = Alignment.Center
     ) {
-        Text(
-            text = "Reportar",
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color(0xFF2E4374),
-            modifier = Modifier.padding(bottom = 24.dp)
-        )
-
-        Text(
-            text = "O que você viu?",
-            fontSize = 16.sp,
-            color = Color.DarkGray,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
-        br.com.fiap.overtheocean.model.TipoRelatorio.values().forEach { tipo ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 4.dp)
-                    .clickable { tipoSelecionado = tipo },
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                RadioButton(
-                    selected = tipoSelecionado == tipo,
-                    onClick = { tipoSelecionado = tipo },
-                    colors = RadioButtonDefaults.colors(
-                        selectedColor = Color(0xFF2E4374)
-                    )
-                )
-                Text(
-                    text = tipo.descricao,
-                    fontSize = 16.sp,
-                    color = Color.DarkGray,
-                    modifier = Modifier.padding(start = 8.dp)
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Text(
-            text = "Descreva aqui o que viu (máximo 200 caracteres)",
-            fontSize = 16.sp,
-            color = Color.DarkGray,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
-        OutlinedTextField(
-            value = descricao,
-            onValueChange = {
-                if (it.length <= 200) descricao = it
-            },
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(120.dp),
-            placeholder = { Text("Digite sua descrição aqui") },
-            colors = OutlinedTextFieldDefaults.colors(
-                unfocusedContainerColor = Color(0xFFEEF1FA),
-                focusedContainerColor = Color(0xFFEEF1FA),
-                unfocusedBorderColor = Color.Transparent,
-                focusedBorderColor = Color(0xFF2E4374)
-            ),
-            keyboardOptions = KeyboardOptions(
-                imeAction = ImeAction.Done
-            ),
-            keyboardActions = KeyboardActions(
-                onDone = { focusManager.clearFocus() }
-            ),
-            maxLines = 5
-        )
-
-        Text(
-            text = "${descricao.length}/200",
-            fontSize = 12.sp,
-            color = if (descricao.length >= 180) Color.Red else Color.Gray,
-            modifier = Modifier.align(Alignment.End)
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Text(
-            text = "Você tem uma foto do ocorrido?",
-            fontSize = 16.sp,
-            color = Color.DarkGray,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
-        OutlinedCard(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp)
-                .clickable { launcher.launch("image/*") },
-            colors = CardDefaults.outlinedCardColors(containerColor = Color(0xFFEEF1FA))
+                .padding(16.dp)
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = if (caminhoImagem == null) "Escolha uma imagem" else "Imagem selecionada",
-                    fontSize = 16.sp,
-                    color = Color.Gray
-                )
-                Icon(
-                    imageVector = Icons.Default.AttachFile,
-                    contentDescription = "Anexar arquivo",
-                    tint = Color.Gray
-                )
-            }
-        }
-
-        if (imagemSelecionada != null) {
-            Spacer(modifier = Modifier.height(16.dp))
-            Image(
-                bitmap = imagemSelecionada!!,
-                contentDescription = "Preview da imagem",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp)
-                    .clip(RoundedCornerShape(8.dp)),
-                contentScale = ContentScale.Crop
+            Icon(
+                imageVector = Icons.Default.CheckCircle,
+                contentDescription = "Sucesso",
+                tint = Color(0xFF2E4374),
+                modifier = Modifier.size(100.dp)
             )
-        }
 
-        Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.height(24.dp))
 
-        Button(
-            onClick = {
-                if (botaoAtivo) {
-                    val relatorio = Relatorio(
-                        tipo = tipoSelecionado!!,
-                        descricao = descricao,
-                        caminhoImagem = caminhoImagem.toString()
-                    )
-                    onSalvarClick(relatorio)
-                }
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = if (botaoAtivo) Color(0xFF2E4374) else Color(0xFFE0E0E0),
-                disabledContainerColor = Color(0xFFE0E0E0)
-            ),
-            enabled = botaoAtivo,
-            shape = RoundedCornerShape(8.dp)
-        ) {
             Text(
-                text = "Continuar",
-                fontSize = 16.sp,
-                color = if (botaoAtivo) Color.White else Color.Gray
+                text = "Relatório enviado com sucesso!",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF2E4374),
+                textAlign = TextAlign.Center
             )
-        }
 
-        Spacer(modifier = Modifier.height(56.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = "Seu relatório foi recebido e será analisado pela nossa equipe. Obrigado por contribuir para a preservação dos oceanos.",
+                fontSize = 16.sp,
+                color = Color.DarkGray,
+                textAlign = TextAlign.Center
+            )
+
+            Spacer(modifier = Modifier.height(48.dp))
+
+            Button(
+                onClick = onVoltar,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF2E4374)
+                ),
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Text(
+                    text = "Voltar para o início",
+                    fontSize = 16.sp,
+                    color = Color.White
+                )
+            }
+        }
     }
 }
