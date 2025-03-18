@@ -4,8 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -14,14 +14,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AttachFile
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material.icons.filled.AttachFile
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -44,17 +43,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import br.com.fiap.overtheocean.ui.theme.OverTheOceanTheme
 import br.com.fiap.overtheocean.screens.ExtratoDePontosScreen
 import br.com.fiap.overtheocean.screens.PontosDeColetaScreen
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-
+import br.com.fiap.overtheocean.ui.theme.OverTheOceanTheme
 
 
 class MainActivity : ComponentActivity() {
@@ -369,7 +360,7 @@ fun FeedScreen() {
                             .background(Color(0xFFE0F4FF), CircleShape)
                     ) {
                         Image(
-                            painter = painterResource(id = R.drawable.ic_launcher_background),
+                            painter = painterResource(id = R.drawable.balu),
                             contentDescription = "Balu mascote",
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Fit
@@ -411,12 +402,20 @@ fun FeedScreen() {
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(start = 16.dp)
         ) {
-            // Círculo com imagem azul do oceano
+            // Círculo com imagem de perfil da Marina
             Box(
                 modifier = Modifier
                     .size(30.dp)
-                    .background(Color(0xFF1E6799), CircleShape)
-            )
+                    .clip(CircleShape)
+            ) {
+
+                Image(
+                    painter = painterResource(id = R.drawable.marina),
+                    contentDescription = "Marina profile picture",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
 
             Spacer(modifier = Modifier.width(8.dp))
 
@@ -436,24 +435,17 @@ fun FeedScreen() {
                 .height(180.dp)
                 .padding(horizontal = 16.dp)
                 .clip(RoundedCornerShape(8.dp))
-                .background(Color(0xFF1E6799))
         ) {
-            // Aqui você adicionaria a imagem real do mergulhador
-            // Por enquanto, usamos apenas um placeholder azul
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                // Silhueta do mergulhador (simplificada)
-                Box(
-                    modifier = Modifier
-                        .size(width = 40.dp, height = 80.dp)
-                        .background(Color.Black.copy(alpha = 0.5f))
-                )
-            }
+            Image(
+                painter = painterResource(id = R.drawable.marina),
+                contentDescription = "Imagem de mergulhador",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+
+             }
         }
     }
-}
 
 // Componente auxiliar para os círculos de imagem
 @Composable
@@ -586,26 +578,48 @@ fun PontosScreen() {
                 .padding(horizontal = 8.dp, vertical = 12.dp)
         )
 
-        // Cards de recompensas
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        @Composable
+        fun RewardCard(
+            modifier: Modifier = Modifier,
+            title: String,
+            backgroundColor: Color,
+            imageRes: Int? = null // Adicionando o parâmetro opcional
         ) {
-            // Card de desconto em restaurantes
-            RewardCard(
-                modifier = Modifier.weight(1f),
-                title = "Desconto em restaurantes",
-                backgroundColor = Color(0xFFF5F5F5)
-            )
+            Card(
+                modifier = modifier
+                    .height(120.dp),
+                shape = RoundedCornerShape(8.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                colors = CardDefaults.cardColors(containerColor = backgroundColor)
+            ) {
+                Column {
+                    // Imagem ocupando parte superior do card (apenas se imageRes for fornecido)
+                    if (imageRes != null) {
+                        Image(
+                            painter = painterResource(id = imageRes),
+                            contentDescription = title,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(80.dp)
+                        )
+                    }
 
-            // Card de desconto em hotéis
-            RewardCard(
-                modifier = Modifier.weight(1f),
-                title = "Desconto em hotéis",
-                backgroundColor = Color(0xFFF5F5F5)
-            )
+                    // Texto na parte inferior do card
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.BottomStart
+                    ) {
+                        Text(
+                            text = title,
+                            modifier = Modifier.padding(8.dp),
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color.DarkGray
+                        )
+                    }
+                }
+            }
         }
     }
 }
@@ -722,25 +736,29 @@ fun ReportarScreen() {
                 .height(56.dp),
             colors = CardDefaults.outlinedCardColors(containerColor = Color(0xFFEEF1FA))
         ) {
+            // Cards de recompensas
             Row(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Text(
-                    text = "Selecione o tipo",
-                    fontSize = 16.sp,
-                    color = Color.Gray
+                // Card de desconto em restaurantes
+                RewardCard(
+                    modifier = Modifier.weight(1f),
+                    title = "Desconto em restaurantes",
+                    backgroundColor = Color(0xFFF5F5F5),
+                    imageRes = R.drawable.restaurante
                 )
-                Icon(
-                    imageVector = Icons.Default.KeyboardArrowDown,
-                    contentDescription = "Selecionar",
-                    tint = Color.Gray
+
+                // Card de desconto em hotéis
+                RewardCard(
+                    modifier = Modifier.weight(1f),
+                    title = "Desconto em hotéis",
+                    backgroundColor = Color(0xFFF5F5F5),
+                    imageRes = R.drawable.cafeteria
                 )
             }
-        }
 
         Spacer(modifier = Modifier.height(24.dp))
 
