@@ -64,6 +64,8 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import br.com.fiap.overtheocean.model.Relatorio
 import br.com.fiap.overtheocean.model.TipoRelatorio
+import androidx.compose.foundation.clickable
+
 
 
 class MainActivity : ComponentActivity() {
@@ -235,7 +237,7 @@ fun NavegacaoApp() {
             modifier = Modifier.padding(innerPadding)
         ) {
             composable("Login") { LoginScreen(navController) }
-            composable("Feed") { FeedScreen() }
+            composable("Feed") { FeedScreen(navController) }
             composable("Pontos") { PontosScreen() }
             composable("Extrato de Pontos") { ExtratoDePontosScreen() }
             composable("Pontos de Coleta") { PontosDeColetaScreen() }
@@ -244,7 +246,6 @@ fun NavegacaoApp() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BottomNavigationBar(navController: NavController) {
     NavigationBar(
@@ -310,13 +311,12 @@ fun BottomNavigationBarPreview() {
 }
 
 @Composable
-fun FeedScreen() {
+fun FeedScreen(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
     ) {
-        // Cabeçalho
         Text(
             text = "Over the Ocean",
             fontSize = 22.sp,
@@ -324,7 +324,6 @@ fun FeedScreen() {
             modifier = Modifier.padding(16.dp)
         )
 
-        // Seção P.O.V. com imagens em círculos
         Text(
             text = "P.O.V.",
             fontSize = 14.sp,
@@ -338,12 +337,12 @@ fun FeedScreen() {
                 .padding(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // Círculo com símbolo de adição
             Box(
                 modifier = Modifier
                     .size(60.dp)
                     .background(Color(0xFFE6EFFE), CircleShape)
-                    .border(1.dp, Color(0xFFD0D0D0), CircleShape),
+                    .border(1.dp, Color(0xFFD0D0D0), CircleShape)
+                    .clickable { navController.navigate("Reportar") },
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
@@ -353,8 +352,6 @@ fun FeedScreen() {
                 )
             }
 
-            // Círculos com imagens em vez de cores sólidas
-            // Primeiro círculo com imagem
             Box(
                 modifier = Modifier
                     .size(60.dp)
@@ -369,7 +366,6 @@ fun FeedScreen() {
                 )
             }
 
-            // Segundo círculo com imagem
             Box(
                 modifier = Modifier
                     .size(60.dp)
@@ -384,7 +380,6 @@ fun FeedScreen() {
                 )
             }
 
-            // Terceiro círculo com imagem
             Box(
                 modifier = Modifier
                     .size(60.dp)
@@ -402,7 +397,6 @@ fun FeedScreen() {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Card do mascote com a mensagem
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -428,7 +422,6 @@ fun FeedScreen() {
 
                     Spacer(modifier = Modifier.width(16.dp))
 
-                    // Mensagem e nome do mascote
                     Column {
                         Text(
                             text = "Jogar o lixo no lugar certo faz toda a diferença para a vida marinha.",
@@ -456,12 +449,10 @@ fun FeedScreen() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Seção Marina com imagem submarina
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(start = 16.dp)
         ) {
-            // Círculo com imagem de perfil da Marina
             Box(
                 modifier = Modifier
                     .size(30.dp)
@@ -487,7 +478,6 @@ fun FeedScreen() {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Imagem grande de mergulhador
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -506,7 +496,7 @@ fun FeedScreen() {
     }
 }
 
-// Componente auxiliar para os círculos de imagem
+
 @Composable
 fun CircleImage(color: Color) {
     Box(
@@ -519,7 +509,6 @@ fun CircleImage(color: Color) {
 
 @Composable
 fun PontosScreen() {
-    // Importar o manipulador de URI para abrir links
     val uriHandler = LocalUriHandler.current
     val context = LocalContext.current
 
@@ -530,7 +519,6 @@ fun PontosScreen() {
             .background(Color.White),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Título da tela
         Text(
             text = "Pontuação",
             fontSize = 24.sp,
@@ -539,13 +527,11 @@ fun PontosScreen() {
             modifier = Modifier.padding(vertical = 16.dp)
         )
 
-        // Linha de progresso com pontos
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
-            // Linha de fundo
             Divider(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -554,7 +540,6 @@ fun PontosScreen() {
                 thickness = 2.dp
             )
 
-            // Pontos na linha de progresso
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -569,14 +554,12 @@ fun PontosScreen() {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Medidor circular
         Box(
             modifier = Modifier
                 .size(200.dp)
                 .padding(8.dp),
             contentAlignment = Alignment.Center
         ) {
-            // Círculo de fundo (cinza)
             Canvas(modifier = Modifier.fillMaxSize()) {
                 drawArc(
                     color = Color.LightGray,
@@ -587,18 +570,16 @@ fun PontosScreen() {
                 )
             }
 
-            // Círculo de progresso (azul)
             Canvas(modifier = Modifier.fillMaxSize()) {
                 drawArc(
                     color = Color(0xFF3866E6),
                     startAngle = 135f,
-                    sweepAngle = 270f, // Completo para 1000 pontos
+                    sweepAngle = 270f,
                     useCenter = false,
                     style = Stroke(width = 20f, cap = StrokeCap.Round)
                 )
             }
 
-            // Pequena marca no fim do progresso
             Canvas(modifier = Modifier.fillMaxSize()) {
                 drawArc(
                     color = Color.Black,
@@ -609,7 +590,6 @@ fun PontosScreen() {
                 )
             }
 
-            // Texto central (pontos)
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -630,7 +610,6 @@ fun PontosScreen() {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Seção de recompensas
         Text(
             text = "Recompensas",
             fontSize = 18.sp,
@@ -641,14 +620,12 @@ fun PontosScreen() {
                 .padding(horizontal = 8.dp, vertical = 12.dp)
         )
 
-        // Cards de recompensas
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Card de desconto em restaurantes (agora clicável)
             RewardCard(
                 modifier = Modifier.weight(1f),
                 title = "Desconto em restaurantes",
@@ -664,7 +641,6 @@ fun PontosScreen() {
                 }
             )
 
-            // Card de desconto em hotéis (agora clicável)
             RewardCard(
                 modifier = Modifier.weight(1f),
                 title = "Desconto em hotéis",
@@ -709,8 +685,8 @@ fun RewardCard(
     title: String,
     backgroundColor: Color,
     imageRes: Int,
-    url: String = "",  // Parâmetro de URL com valor padrão vazio
-    onClick: (String) -> Unit = {}  // Função de callback com implementação padrão vazia
+    url: String = "",
+    onClick: (String) -> Unit = {}
 ) {
     Card(
         modifier = modifier
@@ -727,7 +703,7 @@ fun RewardCard(
         colors = CardDefaults.cardColors(containerColor = backgroundColor)
     ) {
         Column {
-            // Imagem ocupando parte superior do card
+
             Image(
                 painter = painterResource(id = imageRes),
                 contentDescription = title,
@@ -737,7 +713,7 @@ fun RewardCard(
                     .height(80.dp)
             )
 
-            // Texto na parte inferior do card
+
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.BottomStart
@@ -982,139 +958,3 @@ fun <T> ReportarScreen(
         Spacer(modifier = Modifier.height(56.dp))
     }
 }
-/*@Composable
-fun ReportarScreen() {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-            .padding(horizontal = 16.dp, vertical = 24.dp)
-    ) {
-        // Título
-        Text(
-            text = "Reportar",
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color(0xFF2E4374),
-            modifier = Modifier.padding(bottom = 24.dp)
-        )
-
-        // Pergunta "O que você viu?"
-        Text(
-            text = "O que você viu?",
-            fontSize = 16.sp,
-            color = Color.DarkGray,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
-        // Dropdown de seleção
-        OutlinedCard(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            colors = CardDefaults.outlinedCardColors(containerColor = Color(0xFFEEF1FA))
-        ) {
-            Box(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                // Campo vazio, normalmente teria um dropdown aqui
-            }
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Campo de descrição
-        Text(
-            text = "Descreva aqui o que viu",
-            fontSize = 16.sp,
-            color = Color.DarkGray,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            // Campo de texto
-            OutlinedCard(
-                modifier = Modifier
-                    .weight(1f)
-                    .height(56.dp),
-                colors = CardDefaults.outlinedCardColors(containerColor = Color(0xFFEEF1FA))
-            ) {
-                Box(
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    // Campo vazio, normalmente teria um TextField aqui
-                }
-            }
-
-            // Ícone de ajuda
-            Icon(
-                imageVector = Icons.Default.Info,
-                contentDescription = "Informação",
-                tint = Color.Gray,
-                modifier = Modifier.size(24.dp)
-            )
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Pergunta sobre foto
-        Text(
-            text = "Você tem uma foto do ocorrido?",
-            fontSize = 16.sp,
-            color = Color.DarkGray,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
-        // Botão de upload
-        OutlinedCard(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            colors = CardDefaults.outlinedCardColors(containerColor = Color(0xFFEEF1FA))
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Escolha uma imagem",
-                    fontSize = 16.sp,
-                    color = Color.Gray
-                )
-                Icon(
-                    imageVector = Icons.Default.AttachFile,
-                    contentDescription = "Anexar arquivo",
-                    tint = Color.Gray
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.weight(1f))
-
-        // Botão de continuar
-        Button(
-            onClick = { /* Implementar ação */ },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE0E0E0)),
-            shape = RoundedCornerShape(8.dp)
-        ) {
-            Text(
-                text = "Continuar",
-                fontSize = 16.sp,
-                color = Color.Gray
-            )
-        }
-
-        // Espaço para a barra de navegação inferior
-        Spacer(modifier = Modifier.height(56.dp))
-    }
-}*/
