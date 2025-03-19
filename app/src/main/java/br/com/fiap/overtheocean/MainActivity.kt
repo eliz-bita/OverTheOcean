@@ -55,12 +55,14 @@ import androidx.compose.ui.platform.LocalUriHandler
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.text.input.ImeAction
 import br.com.fiap.overtheocean.model.Relatorio
 import br.com.fiap.overtheocean.model.TipoRelatorio
@@ -110,7 +112,7 @@ fun LoginScreen(navController: NavController) {
             contentAlignment = Alignment.Center
         ) {
             Image(
-                painter = painterResource(id = R.drawable.ic_launcher_background),
+                painter = painterResource(id = R.drawable.balu),
                 contentDescription = "Imagem de perfil",
                 modifier = Modifier
                     .size(120.dp)
@@ -214,7 +216,10 @@ fun LoginScreen(navController: NavController) {
         }
     }
 }
-
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.material.icons.filled.Cancel
+import androidx.compose.ui.layout.VerticalAlignmentLine
+import androidx.compose.ui.window.Dialog
 
 
 @Composable

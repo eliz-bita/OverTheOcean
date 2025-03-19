@@ -19,13 +19,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.material3.Surface
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.filled.Cancel
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.window.Dialog
 
 @Composable
 fun ExtratoDePontosScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(top = 15.dp,start = 16.dp, end = 16.dp),
+            .padding(top = 15.dp, start = 16.dp, end = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
@@ -58,6 +65,8 @@ fun TabelaExtratoPontos() {
         Triple("Entrada", "+1000", Icons.Filled.Info),
         Triple("Entrada", "+50", Icons.Filled.Info)
     )
+
+    var mostrarPop by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(
@@ -94,7 +103,7 @@ fun TabelaExtratoPontos() {
         }
 
         LazyColumn {
-            items(dados) { (tipo, pontos, info) ->
+            items(dados) { (tipo, pontos, info)->
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -116,12 +125,18 @@ fun TabelaExtratoPontos() {
                         modifier = Modifier.weight(1f),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(
-                            imageVector = info,
-                            contentDescription = "Ícone de informação",
-                            tint = Color(0xFFC8D5F5),
-                            modifier = Modifier.size(15.dp)
-                        )
+                        IconButton(
+                            onClick = {
+                                mostrarPop = true
+                            }
+                        ) {
+                            Icon(
+                                imageVector = info,
+                                contentDescription = "Ícone de informação",
+                                tint = Color(0xFFC8D5F5),
+                                modifier = Modifier.size(15.dp)
+                            )
+                        }
                     }
                 }
                 Divider(
@@ -129,6 +144,39 @@ fun TabelaExtratoPontos() {
                     thickness = 1.dp,
                     color = Color(0xFFD3D3D3)
                 )
+                PopupInfo(mostrarPop) { mostrarPop = false }
+            }
+        }
+    }
+}
+
+@Composable
+fun PopupInfo(mostrarPop: Boolean, onDismiss: () -> Unit) {
+    if (mostrarPop){
+        Dialog(onDismissRequest = onDismiss) {
+            Box(
+                modifier = Modifier
+                    .width(350.dp)
+                    .height(100.dp)
+                    .clip(shape = RoundedCornerShape(30.dp)),
+                contentAlignment = Alignment.Center
+            ){
+                Row(
+                    modifier = Modifier
+                        .background(Color.White)
+                        .fillMaxSize(),
+                    horizontalArrangement = Arrangement.SpaceAround,
+                    verticalAlignment = Alignment.CenterVertically,
+
+                    ) {
+                    Text(text = "Data: 21/10/2024")
+                    Text(text = "Hora: 11:43")
+                    IconButton(
+                        onClick = { onDismiss }
+                    ) {
+                        Icon(imageVector = Icons.Default.Cancel, contentDescription = "Fechar")
+                    }
+                }
             }
         }
     }
