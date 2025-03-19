@@ -216,11 +216,6 @@ fun LoginScreen(navController: NavController) {
         }
     }
 }
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.material.icons.filled.Cancel
-import androidx.compose.ui.layout.VerticalAlignmentLine
-import androidx.compose.ui.window.Dialog
-
 
 @Composable
 fun NavegacaoApp() {
