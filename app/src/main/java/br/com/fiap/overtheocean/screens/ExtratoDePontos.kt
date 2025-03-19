@@ -172,7 +172,7 @@ fun PopupInfo(mostrarPop: Boolean, onDismiss: () -> Unit) {
                     Text(text = "Data: 21/10/2024")
                     Text(text = "Hora: 11:43")
                     IconButton(
-                        onClick = { onDismiss }
+                        onClick = { onDismiss() }
                     ) {
                         Icon(imageVector = Icons.Default.Cancel, contentDescription = "Fechar")
                     }
